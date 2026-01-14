@@ -9,7 +9,9 @@ notice pour installer les différents scriptes pour la communication entre Linux
 ~~~
 apt-get update
 apt-get install -y python3 python3-pip samba
+~~~
 
+~~~
 pip3 install flask flask-socketio
 ~~~
 
