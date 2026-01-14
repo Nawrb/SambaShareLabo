@@ -1,15 +1,21 @@
-# SambaShareLabo
-notice pour installer les différents scriptes pour la communication entre Linux et Windows.
+# 📂 SambaShareLabo - Notice d'Installation
+Documentation technique pour le déploiement des scripts de communication inter-systèmes (Linux & Windows).
 
 ---
 
-## Installation des paquets Windows et Linux
+## 1. Installation Côté Serveur (Linux / Docker)
+Cette machine héberge le script serveur.py, surveille les fichiers Samba et héberge le Chat.
 
-### Linux script serveur.py installer les paquets suivants:
+## A. Pré-requis système
+Installez Python, le gestionnaire de paquets pip et les utilitaires Samba :
+
 ~~~
 apt-get update
 apt-get install -y python3 python3-pip samba
 ~~~
+
+# B. Dépendances Python
+Installez les librairies nécessaires pour le serveur Web et le WebSocket :
 
 ~~~
 pip3 install flask flask-socketio
