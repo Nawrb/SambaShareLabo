@@ -21,10 +21,19 @@ pip3 install flask flask-socketio
 sudo apt-get update
 sudo apt-get install -y python3 python3-tk
 ~~~ 
+⚠️ Autoriser le port 8080 et 5000 sur linux avec la commande suivante:
+
+~~~
+apt update && apt install ufw
+sudo ufw allow 8080/tcp
+sudo ufw allow 5000/tcp
+~~~
 
 ### Windows script client.py installer les paquets suivants:
 
 ~~~
 Télécharge Python sur python.org
 TRÈS IMPORTANT : Lors de l'installation, coche la case "Add Python to PATH" en bas de la première fenêtre
-~~~ 
+~~~
+
+---
