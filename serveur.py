@@ -11,7 +11,7 @@ CLIENT_PORT = 8080
 CONTAINER_NAME = "samba"
 TARGET_EXT = ".docx"
 WEB_PORT = 5000
-SERVER_IP = "172.16.21.193"
+SERVER_IP = "172.16.21.193" #addresse ip du serveur utilisé
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_samba'
@@ -19,6 +19,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 active_conflicts = {}
 
+#HTML de la page web qui s'ouvre lors du conflit
 CHAT_HTML = """
 <!DOCTYPE html>
 <html>
@@ -169,4 +170,5 @@ def monitor_loop():
 
 if __name__ == "__main__":
     socketio.start_background_task(monitor_loop)
+
     socketio.run(app, host='0.0.0.0', port=WEB_PORT, allow_unsafe_werkzeug=True)
