@@ -7,11 +7,11 @@ from flask import Flask, render_template_string, request
 from flask_socketio import SocketIO, emit, join_room
 
 CHECK_INTERVAL = 3
-CLIENT_PORT = 8080
+CLIENT_PORT = 8080 #port utiliser pour communiquer entre les machines
 CONTAINER_NAME = "samba"
-TARGET_EXT = ".docx"
-WEB_PORT = 5000
-SERVER_IP = "172.16.21.193" #addresse ip du serveur utilisé
+TARGET_EXT = [".docx", ".xlsx", ".xls", ".odt"]
+WEB_PORT = 5000 #port web
+SERVER_IP = "xx.xx.xx.xx" #addresse ip du serveur utilisé
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_samba'
@@ -113,9 +113,9 @@ def get_docker_locks():
     pid_ip_map = {}
     file_users = {}
     try:
-        # 1. On récupère les IPs connectées
+        # 1. On récupère les IPs sans afficher les erreurs Samba
         cmd_p = ['docker', 'exec', CONTAINER_NAME, 'smbstatus', '-s', '/etc/samba/smb.conf', '-p', '-n']
-        out_p = subprocess.check_output(cmd_p, text=True)
+        out_p = subprocess.check_output(cmd_p, text=True, stderr=subprocess.DEVNULL)
         for line in out_p.splitlines():
             parts = line.split()
             if len(parts) >= 4 and parts[0].isdigit():
@@ -123,26 +123,30 @@ def get_docker_locks():
 
         # 2. On récupère les fichiers verrouillés
         cmd_l = ['docker', 'exec', CONTAINER_NAME, 'smbstatus', '-s', '/etc/samba/smb.conf', '-L', '-n']
-        out_l = subprocess.check_output(cmd_l, text=True)
+        out_l = subprocess.check_output(cmd_l, text=True, stderr=subprocess.DEVNULL)
         
         for line in out_l.splitlines():
-            # On cherche notre extension (ex: .docx)
-            if TARGET_EXT in line:
-                # Analyse de la ligne pour extraire le PID et le NOM DU FICHIER
+            # On vérifie si la ligne contient l'une de nos extensions
+            if any(ext in line for ext in TARGET_EXTS):
+                if 'DENY_NONE' in line and 'RDONLY' in line: continue
+                
                 parts = line.split()
                 if len(parts) >= 5 and parts[0].isdigit():
                     pid = parts[0]
-                    # Le nom du fichier est souvent en fin de ligne, on le cherche proprement
-                    match = re.search(r'([^/]+\.docx)', line)
+                    # On extrait le nom du fichier dynamiquement selon l'extension trouvée
+                    # Cette regex cherche n'importe quel nom finissant par une de nos extensions
+                    match = re.search(r'([^/]+\.(docx|xlsx|xls|odt))', line)
                     if match:
                         fname = match.group(1)
+                        if fname.startswith('~$'): continue
+                        
                         if pid in pid_ip_map:
                             ip = pid_ip_map[pid]
                             if fname not in file_users: file_users[fname] = []
                             if ip not in file_users[fname]: file_users[fname].append(ip)
                             
-    except Exception as e:
-        print(f"Erreur Détection: {e}")
+    except Exception:
+        pass 
     return file_users
 
 def monitor_loop():
@@ -172,3 +176,4 @@ if __name__ == "__main__":
     socketio.start_background_task(monitor_loop)
 
     socketio.run(app, host='0.0.0.0', port=WEB_PORT, allow_unsafe_werkzeug=True)
+
