@@ -18,7 +18,8 @@ apt-get install -y python3 python3-pip samba
 Installez les librairies nécessaires pour le serveur Web et le WebSocket :
 
 ~~~
-pip3 install flask flask-socketio
+sudo apt update
+sudo apt install python3-flask python3-flask-socketio
 ~~~
 
 ### C. Configuration du Pare-feu (Serveur)
